@@ -48,9 +48,39 @@ namespace Evolution.ClientAPI.Services
                 alwaysOnline = config.AlwaysOnline,
                 readMessages = config.ReadMessages,
                 readStatus = config.ReadStatus,
-                syncFullHistory = config.SyncFullHistory
-                // Nota: Os campos adicionais como proxy, webhook, etc. precisam ser adicionados
-                // à classe InstanceConfig antes de serem usados aqui
+                syncFullHistory = config.SyncFullHistory,
+                proxyHost = config.ProxyHost,
+                proxyPort = config.ProxyPort,
+                proxyProtocol = config.ProxyProtocol,
+                proxyUsername = config.ProxyUsername,
+                proxyPassword = config.ProxyPassword,
+                webhookUrl = config.WebhookUrl,
+                webhookByEvents = config.WebhookByEvents,
+                webhookBase64 = config.WebhookBase64,
+                webhookEvents = config.WebhookEvents,
+                rabbitmqEnabled = config.RabbitmqEnabled,
+                rabbitmqEvents = config.RabbitmqEvents,
+                sqsEnabled = config.SqsEnabled,
+                sqsEvents = config.SqsEvents,
+                chatwootAccountId = config.ChatwootAccountId,
+                chatwootToken = config.ChatwootToken,
+                chatwootUrl = config.ChatwootUrl,
+                chatwootSignMsg = config.ChatwootSignMsg,
+                chatwootReopenConversation = config.ChatwootReopenConversation,
+                chatwootConversationPending = config.ChatwootConversationPending,
+                chatwootImportContacts = config.ChatwootImportContacts,
+                chatwootNameInbox = config.ChatwootNameInbox,
+                chatwootMergeBrazilContacts = config.ChatwootMergeBrazilContacts,
+                chatwootDaysLimitImportMessages = config.ChatwootDaysLimitImportMessages,
+                chatwootOrganization = config.ChatwootOrganization,
+                chatwootLogo = config.ChatwootLogo,
+                typebotUrl = config.TypebotUrl,
+                typebot = config.Typebot,
+                typebotExpire = config.TypebotExpire,
+                typebotKeywordFinish = config.TypebotKeywordFinish,
+                typebotDelayMessage = config.TypebotDelayMessage,
+                typebotUnknownMessage = config.TypebotUnknownMessage,
+                typebotListeningFromMe = config.TypebotListeningFromMe
             };
 
             // Chama o método POST genérico, passando o objeto de configuração

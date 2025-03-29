@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Evolution.ClientAPI.Models;
 using Evolution.ClientAPI.Exceptions;
 
+// Program.cs
 namespace Evolution.ClientAPI.Examples
 {
     class Program
@@ -10,30 +11,23 @@ namespace Evolution.ClientAPI.Examples
         private static EvolutionClient _client;
         static async Task Main(string[] args)
         {
-            try
-            {
-                DotNetEnv.Env.Load();
-                _client = EvolutionClient.CreateClient();
-                await GetAllInstances();
-            }
-            catch (EvolutionAPIError ex) 
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Erro na API Evolution: {ex.Message}");
-            }
-            catch (Exception ex) 
-            {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine($"Erro inesperado: {ex.Message}");
-            }
+            DotNetEnv.Env.Load();
+            _client = EvolutionClient.CreateClient();
+            await GetAllInstances();
         }
 
         static async Task GetAllInstances()
         {
+
             // 1. Listar Instâncias
             // await ListInstances();
+            
+            const string instanceName = "Marindombo";
             // 2. Criar Instância
-            await CreateInstance();
+            await CreateInstance(instanceName);
+
+            // 3. Delete instancia
+            // await DeleteInstanceExample(instanceName);
         }
         static async Task ListInstances()
         {
@@ -75,11 +69,11 @@ namespace Evolution.ClientAPI.Examples
             }
         }
 
-        static async Task CreateInstance()
+        static async Task CreateInstance(string instanceName)
         {
-            Console.WriteLine("\nTentando criar nova instância 'MinhaInstanciaTeste'...");
+            Console.WriteLine("\nCreating instance: '" + instanceName + "'...");
             var instanceConfig = new InstanceConfig(
-                instanceName: "MinhaInstanciaTeste2",
+                instanceName: instanceName,
                 qrcode: true,
                 rejectCall: false,
                 groupsIgnore: false,
@@ -89,72 +83,59 @@ namespace Evolution.ClientAPI.Examples
                 syncFullHistory: false
             );
 
-            try
+            var createdInstance = await _client.Instances.CreateInstance(instanceConfig);
+            Console.WriteLine($"\nInformações da Instância Criada:");
+            Console.WriteLine($"ID: {createdInstance.Id}");
+            Console.WriteLine($"Nome: {createdInstance.Name}");
+            Console.WriteLine($"Status de Conexão: {createdInstance.ConnectionStatus}");
+            Console.WriteLine($"Owner JID: {createdInstance.OwnerJid}");
+            Console.WriteLine($"Nome do Perfil: {createdInstance.ProfileName}");
+            Console.WriteLine($"URL da Foto: {createdInstance.ProfilePicUrl}");
+            Console.WriteLine($"Integração: {createdInstance.Integration}");
+            Console.WriteLine($"Número: {createdInstance.Number}");
+            Console.WriteLine($"ID do Negócio: {createdInstance.BusinessId}");
+            Console.WriteLine($"Token: {createdInstance.Token}");
+            Console.WriteLine($"Nome do Cliente: {createdInstance.ClientName}");
+            
+            if (createdInstance.DisconnectionAt.HasValue)
             {
-                var createdInstance = await _client.Instances.CreateInstance(instanceConfig);
-                Console.WriteLine($"Instância criada/retornada: Nome={createdInstance.Name}, Status={createdInstance.ConnectionStatus}");
-                // Aqui você provavelmente precisaria de lógica para lidar com o QR Code se solicitado
+                Console.WriteLine($"Desconectado em: {createdInstance.DisconnectionAt}");
+                Console.WriteLine($"Código de Desconexão: {createdInstance.DisconnectionReasonCode}");
+                Console.WriteLine($"Objeto de Desconexão: {createdInstance.DisconnectionObject}");
             }
-            catch (EvolutionAPIError apiEx)
-            {
-                 Console.WriteLine($"Erro ao criar instância: {apiEx.Message}");
-                 // Pode ser um erro 409 (Conflict) se a instância já existe, etc.
-            }
+            
+            Console.WriteLine($"Criado em: {createdInstance.CreatedAt}");
+            Console.WriteLine($"Atualizado em: {createdInstance.UpdatedAt}");
+            
+            Console.WriteLine($"Rejeitar Chamadas: {createdInstance.RejectCall}");
+            Console.WriteLine($"Mensagem de Chamada: {createdInstance.MsgCall}");
+            Console.WriteLine($"Ignorar Grupos: {createdInstance.GroupsIgnore}");
+            Console.WriteLine($"Sempre Online: {createdInstance.AlwaysOnline}");
+            Console.WriteLine($"Ler Mensagens: {createdInstance.ReadMessages}");
+            Console.WriteLine($"Ler Status: {createdInstance.ReadStatus}");
+            Console.WriteLine($"Sincronizar Histórico Completo: {createdInstance.SyncFullHistory}");
+            Console.WriteLine("----------------------------------------");
         }
 
-         static async Task LogoutInstanceExample(string instanceName)
+        static async Task LogoutInstanceExample(string instanceName)
         {
             Console.WriteLine($"\nTentando desconectar a instância '{instanceName}'...");
-            try
-            {
-                var result = await _client.Instances.LogoutInstance(instanceName);
-                 Console.WriteLine($"Resultado da desconexão para '{instanceName}': Status={result.ConnectionStatus}"); // O objeto retornado pode variar
-            }
-            catch(EvolutionNotFoundError)
-            {
-                 Console.WriteLine($"Erro: Instância '{instanceName}' não encontrada para desconectar.");
-            }
-            catch (EvolutionAPIError apiEx)
-            {
-                 Console.WriteLine($"Erro ao desconectar instância '{instanceName}': {apiEx.Message}");
-            }
+            var result = await _client.Instances.LogoutInstance(instanceName);
+            Console.WriteLine($"Resultado da desconexão para '{instanceName}': Status={result.ConnectionStatus}");
         }
 
         static async Task DeleteInstanceExample(string instanceName)
         {
             Console.WriteLine($"\nTentando deletar a instância '{instanceName}'...");
-             try
-            {
-                // O endpoint delete pode retornar a instância deletada ou uma confirmação
-                var result = await _client.Instances.DeleteInstance(instanceName);
-                Console.WriteLine($"Instância '{instanceName}' deletada (ou solicitação enviada). Resposta: {result}"); // Ajuste conforme a resposta real da API
-            }
-            catch(EvolutionNotFoundError)
-            {
-                 Console.WriteLine($"Erro: Instância '{instanceName}' não encontrada para deletar.");
-            }
-            catch (EvolutionAPIError apiEx)
-            {
-                 Console.WriteLine($"Erro ao deletar instância '{instanceName}': {apiEx.Message}");
-            }
+            var result = await _client.Instances.DeleteInstance(instanceName);
+            Console.WriteLine($"Instância '{instanceName}' deletada (ou solicitação enviada). Resposta: {result}");
         }
 
-         static async Task RestartInstanceExample(string instanceName)
+        static async Task RestartInstanceExample(string instanceName)
         {
             Console.WriteLine($"\nTentando reiniciar a instância '{instanceName}'...");
-             try
-            {
-                var result = await _client.Instances.RestartInstance(instanceName);
-                 Console.WriteLine($"Resultado do reinício para '{instanceName}': Status={result.ConnectionStatus}"); // O objeto retornado pode variar
-            }
-            catch(EvolutionNotFoundError)
-            {
-                 Console.WriteLine($"Erro: Instância '{instanceName}' não encontrada para reiniciar.");
-            }
-            catch (EvolutionAPIError apiEx)
-            {
-                 Console.WriteLine($"Erro ao reiniciar instância '{instanceName}': {apiEx.Message}");
-            }
+            var result = await _client.Instances.RestartInstance(instanceName);
+            Console.WriteLine($"Resultado do reinício para '{instanceName}': Status={result.ConnectionStatus}");
         }
 
     }

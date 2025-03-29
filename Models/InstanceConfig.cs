@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 
-namespace Evolution.ClientAPI.Models // << Namespace Ajustado
+namespace Evolution.ClientAPI.Models
 {
     public class InstanceConfig
     {
         public string InstanceName { get; set; }
-
         public string Integration { get; set; }
         public string Token { get; set; }
         public string Number { get; set; }
@@ -17,10 +17,50 @@ namespace Evolution.ClientAPI.Models // << Namespace Ajustado
         public bool ReadMessages { get; set; }
         public bool ReadStatus { get; set; }
         public bool SyncFullHistory { get; set; }
-
-        // Webhook settings (exemplo, adicione conforme a API)
-        // public string Webhook { get; set; }
-        // public bool? WebhookEvents { get; set; } // Ou uma lista de eventos string/enum
+        
+        // Proxy settings
+        public string ProxyHost { get; set; }
+        public string ProxyPort { get; set; }
+        public string ProxyProtocol { get; set; }
+        public string ProxyUsername { get; set; }
+        public string ProxyPassword { get; set; }
+        
+        // Webhook settings
+        public string WebhookUrl { get; set; }
+        public bool WebhookByEvents { get; set; }
+        public bool WebhookBase64 { get; set; }
+        public List<string> WebhookEvents { get; set; }
+        
+        // RabbitMQ settings
+        public bool RabbitmqEnabled { get; set; }
+        public List<string> RabbitmqEvents { get; set; }
+        
+        // SQS settings
+        public bool SqsEnabled { get; set; }
+        public List<string> SqsEvents { get; set; }
+        
+        // Chatwoot settings
+        public int? ChatwootAccountId { get; set; }
+        public string ChatwootToken { get; set; }
+        public string ChatwootUrl { get; set; }
+        public bool ChatwootSignMsg { get; set; }
+        public bool ChatwootReopenConversation { get; set; }
+        public bool ChatwootConversationPending { get; set; }
+        public bool ChatwootImportContacts { get; set; }
+        public string ChatwootNameInbox { get; set; }
+        public bool ChatwootMergeBrazilContacts { get; set; }
+        public int? ChatwootDaysLimitImportMessages { get; set; }
+        public string ChatwootOrganization { get; set; }
+        public string ChatwootLogo { get; set; }
+        
+        // Typebot settings
+        public string TypebotUrl { get; set; }
+        public string Typebot { get; set; }
+        public int? TypebotExpire { get; set; }
+        public string TypebotKeywordFinish { get; set; }
+        public int? TypebotDelayMessage { get; set; }
+        public string TypebotUnknownMessage { get; set; }
+        public bool TypebotListeningFromMe { get; set; }
 
         /// <summary>
         /// Cria uma configuração para uma nova instância.
@@ -38,7 +78,9 @@ namespace Evolution.ClientAPI.Models // << Namespace Ajustado
         public InstanceConfig(
             string instanceName,
             string token = null,
+            string number = null,
             bool qrcode = false,
+            string integration = "WHATSAPP-BAILEYS",
             bool rejectCall = false,
             string msgCall = null,
             bool groupsIgnore = false,
@@ -49,9 +91,12 @@ namespace Evolution.ClientAPI.Models // << Namespace Ajustado
         {
             if (string.IsNullOrWhiteSpace(instanceName))
                 throw new ArgumentException("O nome da instância é obrigatório.", nameof(instanceName));
+            
             InstanceName = instanceName;
             Token = token;
+            Number = number;
             Qrcode = qrcode;
+            Integration = integration;
             RejectCall = rejectCall;
             MsgCall = msgCall;
             GroupsIgnore = groupsIgnore;

@@ -119,26 +119,76 @@ namespace Evolution.ClientAPI
 
             if (!response.IsSuccessStatusCode)
             {
-                string errorDetail = string.IsNullOrWhiteSpace(responseContent)
-                    ? "(sem corpo na resposta)"
-                    : $"- Detalhe: {responseContent}";
-
-                switch (response.StatusCode)
+                try
                 {
-                    case HttpStatusCode.Unauthorized:
-                         throw new EvolutionAuthenticationError($"Falha na autenticação (401). {errorDetail}");
-                    case HttpStatusCode.Forbidden:
-                         throw new EvolutionAuthenticationError($"Acesso proibido (403). Verifique as permissões do token. {errorDetail}");
-                    case HttpStatusCode.NotFound:
-                        throw new EvolutionNotFoundError($"Recurso não encontrado (404). Verifique o endpoint ou o nome da instância. {errorDetail}");
-                    case HttpStatusCode.Conflict:
-                         throw new EvolutionAPIError($"Conflito (409). O recurso pode já existir ou há um estado inválido. {errorDetail}");
-                     case HttpStatusCode.BadRequest:
-                        throw new EvolutionAPIError($"Requisição inválida (400). Verifique os parâmetros enviados. {errorDetail}");
-                    case HttpStatusCode.InternalServerError:
-                         throw new EvolutionAPIError($"Erro interno do servidor da API (500). {errorDetail}");
-                    default:
-                        throw new EvolutionAPIError($"Erro na requisição: {(int)response.StatusCode} {response.ReasonPhrase}. {errorDetail}");
+                    // Tenta extrair a mensagem de erro da API
+                    var errorResponse = JsonConvert.DeserializeObject<dynamic>(responseContent);
+                    string apiErrorMessage = null;
+                    
+                    // Tenta extrair mensagens de erro do formato comum da API
+                    if (errorResponse?.response?.message != null)
+                    {
+                        if (errorResponse.response.message is Newtonsoft.Json.Linq.JArray)
+                        {
+                            var messages = new List<string>();
+                            foreach (var msg in errorResponse.response.message)
+                            {
+                                messages.Add(msg.ToString());
+                            }
+                            apiErrorMessage = string.Join("; ", messages);
+                        }
+                        else
+                        {
+                            apiErrorMessage = errorResponse.response.message.ToString();
+                        }
+                    }
+
+                    string errorDetail = string.IsNullOrWhiteSpace(responseContent)
+                        ? "(sem corpo na resposta)"
+                        : $"- Detalhe: {responseContent}";
+
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            throw new EvolutionAuthenticationError($"Falha na autenticação (401). {(apiErrorMessage != null ? apiErrorMessage : errorDetail)}");
+                        case HttpStatusCode.Forbidden:
+                            throw new EvolutionAuthenticationError($"Acesso proibido (403). {(apiErrorMessage != null ? apiErrorMessage : errorDetail)}");
+                        case HttpStatusCode.NotFound:
+                            throw new EvolutionNotFoundError($"Recurso não encontrado (404). {(apiErrorMessage != null ? apiErrorMessage : errorDetail)}");
+                        case HttpStatusCode.Conflict:
+                            throw new EvolutionAPIError($"Conflito (409). {(apiErrorMessage != null ? apiErrorMessage : errorDetail)}");
+                        case HttpStatusCode.BadRequest:
+                            throw new EvolutionAPIError($"Requisição inválida (400). {(apiErrorMessage != null ? apiErrorMessage : errorDetail)}");
+                        case HttpStatusCode.InternalServerError:
+                            throw new EvolutionAPIError($"Erro interno do servidor da API (500). {(apiErrorMessage != null ? apiErrorMessage : errorDetail)}");
+                        default:
+                            throw new EvolutionAPIError($"Erro na requisição: {(int)response.StatusCode} {response.ReasonPhrase}. {(apiErrorMessage != null ? apiErrorMessage : errorDetail)}");
+                    }
+                }
+                catch (JsonException)
+                {
+                    // Se não conseguir extrair a mensagem de erro no formato JSON, usa o conteúdo bruto
+                    string errorDetail = string.IsNullOrWhiteSpace(responseContent)
+                        ? "(sem corpo na resposta)"
+                        : $"- Detalhe: {responseContent}";
+
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            throw new EvolutionAuthenticationError($"Falha na autenticação (401). {errorDetail}");
+                        case HttpStatusCode.Forbidden:
+                            throw new EvolutionAuthenticationError($"Acesso proibido (403). {errorDetail}");
+                        case HttpStatusCode.NotFound:
+                            throw new EvolutionNotFoundError($"Recurso não encontrado (404). {errorDetail}");
+                        case HttpStatusCode.Conflict:
+                            throw new EvolutionAPIError($"Conflito (409). {errorDetail}");
+                        case HttpStatusCode.BadRequest:
+                            throw new EvolutionAPIError($"Requisição inválida (400). {errorDetail}");
+                        case HttpStatusCode.InternalServerError:
+                            throw new EvolutionAPIError($"Erro interno do servidor da API (500). {errorDetail}");
+                        default:
+                            throw new EvolutionAPIError($"Erro na requisição: {(int)response.StatusCode} {response.ReasonPhrase}. {errorDetail}");
+                    }
                 }
             }
             return responseContent;

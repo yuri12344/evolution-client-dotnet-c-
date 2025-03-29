@@ -10,7 +10,8 @@ namespace Evolution.ClientAPI.Models
     {
         open,
         close,
-        connecting
+        connecting,
+        SUCCESS // Added to handle the SUCCESS status returned by the API
     }
 
     public class WebhookConfig
@@ -84,38 +85,116 @@ namespace Evolution.ClientAPI.Models
         }
     }
 
+    public class QrCodeDetails
+    {
+        [JsonProperty("pairingCode")]
+        public string PairingCode { get; set; }
+
+        [JsonProperty("code")]
+        public string Code { get; set; }
+
+        [JsonProperty("base64")]
+        public string Base64 { get; set; }
+    }
+
     public class Instance
     {
+        [JsonProperty("id")]
         public string Id { get; set; }
+
+        [JsonProperty("name")]
         public string Name { get; set; }
+
+        [JsonProperty("status")]
         public InstanceConnectionStatus ConnectionStatus { get; set; }
+
+        [JsonProperty("owner")]
         public string OwnerJid { get; set; }
+
+        [JsonProperty("profileName")]
         public string ProfileName { get; set; }
+
+        [JsonProperty("profilePictureUrl")]
         public string ProfilePicUrl { get; set; }
+
+        [JsonProperty("integration")]
         public string Integration { get; set; }
+
+        [JsonProperty("number")]
         public string Number { get; set; }
+
+        [JsonProperty("businessId")]
         public string BusinessId { get; set; }
+
+        [JsonProperty("token")]
         public string Token { get; set; }
+
+        [JsonProperty("clientName")]
         public string ClientName { get; set; }
+
+        [JsonProperty("disconnectionCode")]
         public int? DisconnectionReasonCode { get; set; }
+
+        [JsonProperty("disconnectionObject")]
         public string DisconnectionObject { get; set; }
+
+        [JsonProperty("disconnectedAt")]
         public DateTime? DisconnectionAt { get; set; }
+
+        [JsonProperty("createdAt")]
         public DateTime? CreatedAt { get; set; }
+
+        [JsonProperty("updatedAt")]
         public DateTime? UpdatedAt { get; set; }
         
         // Configurações adicionais
-        public bool Qrcode { get; set; }
+        [JsonProperty("qrcode")]
+        public QrCodeDetails QrCode { get; set; }
+
+        [JsonProperty("rejectCall")]
         public bool RejectCall { get; set; }
+
+        [JsonProperty("msgCall")]
         public string MsgCall { get; set; }
+
+        [JsonProperty("groupsIgnore")]
         public bool GroupsIgnore { get; set; }
+
+        [JsonProperty("alwaysOnline")]
         public bool AlwaysOnline { get; set; }
+
+        [JsonProperty("readMessages")]
         public bool ReadMessages { get; set; }
+
+        [JsonProperty("readStatus")]
         public bool ReadStatus { get; set; }
+
+        [JsonProperty("syncFullHistory")]
         public bool SyncFullHistory { get; set; }
         
         // Configurações avançadas
+        [JsonProperty("webhook")]
         public WebhookConfig Webhook { get; set; }
+
+        [JsonProperty("events")]
         public EventsConfig Events { get; set; }
+
+        [JsonProperty("chatwoot")]
         public ChatwootConfig Chatwoot { get; set; }
+    }
+
+    public class CreateInstanceResponse
+    {
+        [JsonProperty("instance")]
+        public Instance Instance { get; set; }
+
+        [JsonProperty("hash")]
+        public string Hash { get; set; }
+
+        [JsonProperty("qrcode")]
+        public QrCodeDetails QrCode { get; set; }
+
+        [JsonProperty("settings")]
+        public Instance Settings { get; set; }
     }
 }
